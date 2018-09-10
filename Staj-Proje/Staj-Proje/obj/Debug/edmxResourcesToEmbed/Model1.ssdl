@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="MassTransitGuide_EfeModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="BusNumbers">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Bus_Selection" Type="int" Nullable="false" />
+    <Property Name="Status" Type="int" Nullable="false" />
+    <Property Name="Date" Type="varchar" MaxLength="50" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Busses">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Plaka_No" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Bus_Selection" Type="int" Nullable="false" />
+    <Property Name="Status" Type="int" Nullable="false" />
+    <Property Name="Date" Type="varchar" MaxLength="50" Nullable="false" />
+  </EntityType>
+  <EntityType Name="BusStops">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Durak_Adi" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Enlem" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Boylam" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Status" Type="int" Nullable="false" />
+    <Property Name="Date" Type="varchar" MaxLength="50" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Drivers">
+    <Key>
+      <PropertyRef Name="TC" />
+    </Key>
+    <Property Name="TC" Type="bigint" Nullable="false" />
+    <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Surname" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Bus_Selection" Type="int" Nullable="false" />
+    <Property Name="Status" Type="int" />
+    <Property Name="Date" Type="varchar" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="Guzergah">
+    <Key>
+      <PropertyRef Name="Guzergah_Id" />
+    </Key>
+    <Property Name="Guzergah_Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Guzergah_Adi" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Gidis_Donus" Type="int" Nullable="false" />
+    <Property Name="Status" Type="int" Nullable="false" />
+    <Property Name="Date" Type="varchar" MaxLength="50" Nullable="false" />
+  </EntityType>
+  <EntityType Name="GuzergahDurak">
+    <Key>
+      <PropertyRef Name="GuzergahDurak_Id" />
+    </Key>
+    <Property Name="GuzergahDurak_Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Guzergah_Id" Type="int" />
+    <Property Name="Id" Type="int" />
+    <Property Name="Siralama" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="sysdiagrams">
+    <Key>
+      <PropertyRef Name="diagram_id" />
+    </Key>
+    <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+    <Property Name="principal_id" Type="int" Nullable="false" />
+    <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="version" Type="int" />
+    <Property Name="definition" Type="varbinary(max)" />
+  </EntityType>
+  <EntityType Name="Users">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" Nullable="false" />
+    <Property Name="username" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="pwd" Type="varchar" MaxLength="50" Nullable="false" />
+  </EntityType>
+  <Association Name="FK__GuzergahD__Guzer__4AB81AF0">
+    <End Role="Guzergah" Type="Self.Guzergah" Multiplicity="0..1" />
+    <End Role="GuzergahDurak" Type="Self.GuzergahDurak" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Guzergah">
+        <PropertyRef Name="Guzergah_Id" />
+      </Principal>
+      <Dependent Role="GuzergahDurak">
+        <PropertyRef Name="Guzergah_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK__GuzergahDura__Id__4BAC3F29">
+    <End Role="BusStops" Type="Self.BusStops" Multiplicity="0..1" />
+    <End Role="GuzergahDurak" Type="Self.GuzergahDurak" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="BusStops">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="GuzergahDurak">
+        <PropertyRef Name="Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="MassTransitGuide_EfeModelStoreContainer">
+    <EntitySet Name="BusNumbers" EntityType="Self.BusNumbers" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Busses" EntityType="Self.Busses" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="BusStops" EntityType="Self.BusStops" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Drivers" EntityType="Self.Drivers" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Guzergah" EntityType="Self.Guzergah" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="GuzergahDurak" EntityType="Self.GuzergahDurak" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK__GuzergahD__Guzer__4AB81AF0" Association="Self.FK__GuzergahD__Guzer__4AB81AF0">
+      <End Role="Guzergah" EntitySet="Guzergah" />
+      <End Role="GuzergahDurak" EntitySet="GuzergahDurak" />
+    </AssociationSet>
+    <AssociationSet Name="FK__GuzergahDura__Id__4BAC3F29" Association="Self.FK__GuzergahDura__Id__4BAC3F29">
+      <End Role="BusStops" EntitySet="BusStops" />
+      <End Role="GuzergahDurak" EntitySet="GuzergahDurak" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

@@ -1,0 +1,309 @@
+﻿@model Staj_Proje.Models.GuzergahModel
+
+@{
+    ViewBag.Title = "GuzergahYoluGoster";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section role="main" class="content-body">
+    <header class="page-header">
+        <h2>Güzergah Yolu Görüntüle</h2>
+        <div class="right-wrapper pull-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="~/Map/Index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>Güzergah İşlemleri</span></li>
+                <li><span>Güzergah Yolu Görüntüle</span></li>
+            </ol>
+
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+    </header>
+
+    <!--Form-->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-horizontal form-bordered driver-form">
+                <section class="panel">
+                    <header class="panel-heading">
+                        <div class="panel-actions">
+                            <a href="#" class="panel-action panel-action-toggle" data-panel-toggle></a>
+                        </div>
+                        <h2 class="panel-title">Güzergah Yolu Görüntüle</h2>
+                        <p class="panel-subtitle">
+                            Buradan güzergah <code>ismini</code> seçerek <code>güzergah yollarını</code> görebilirsiniz.
+                        </p>
+                    </header>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="col-md-3 control-label" for="inputSuccess">Guzergah Seçin:</label>
+                            <div class="col-md-6">
+                                <select class="form-control mb-md" id="Guzergah_Adi" name="Guzergah_Adi" required>
+                                    <option></option>
+                                    @foreach (var info in Model.guzergahComboBox)
+                                    {
+                                        <option value="@info">@info</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="inputPlaceholder"></label>
+                            <div class="col-sm-8">
+                                <input type="button" class="form-control btn btn-primary" name="Send_Button" id="Send_Button" value="Guzergahı Göster">
+                            </div>
+                        </div>
+                        <div id="error"></div>
+                    </div>
+                </section>
+            </div>
+            <ul>
+                @foreach (var error in Model.error)
+                {
+                    <li><p class="efe">@error</p></li>
+                }
+            </ul>
+        </div>
+    </div>
+    <hr />
+    <input id="pac-input" class="controls" type="text" placeholder="Search Box">
+    <div id="map"></div>
+</section>
+
+
+<script async defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAmk15_a9ZlMtAUnorScX1IzI0ywhoiOp0&callback=initMap&libraries=places"></script>
+<script type="text/javascript">
+    var marker;
+    var kayitliYer, ilkDurak, sonDurak, digerDuraklar;
+    var durakYolu;
+    //var daireİcineAl;
+    var sonDurakImage, ilkDurakImage, image;
+    var durakArray = [];
+
+    // Initilaize the map
+    function initMap() {
+        var deytek = { lat: 38.394397, lng: 27.035769 }; // Mapi deytekten başlat
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 15,
+            center: deytek
+        });
+
+        Promise.all([haritadaGoster]).then(() => {
+            // Ajax'a girerken çağırılıyor
+        }).catch(() => {
+            alert("Fail")
+        });
+
+        function isInArray(value, array) {
+            return array.indexOf(value) > -1;
+        }
+
+        function haritadaGoster() {
+            image = {
+                url: 'https://www.clker.com/cliparts/G/e/o/0/f/m/map-pin-red-md.png',
+                scaledSize: new google.maps.Size(30, 30), // scaled size
+                origin: new google.maps.Point(0, 0), // origin
+                anchor: new google.maps.Point(0, 0)
+            };
+            
+            sonDurakImage = {
+                url: 'http://www.clker.com/cliparts/R/K/r/C/f/o/red-marker-black-border-md.png',
+                scaledSize: new google.maps.Size(30, 30), // scaled size
+                origin: new google.maps.Point(0, 0), // origin
+                anchor: new google.maps.Point(0, 0)
+            };
+
+            ilkDurakImage = {
+                url: 'http://www.clker.com/cliparts/j/4/u/5/C/k/marker-md.png',
+                scaledSize: new google.maps.Size(30, 30), // scaled size
+                origin: new google.maps.Point(0, 0), // origin
+                anchor: new google.maps.Point(0, 0)
+            }
+
+            return $.ajax({
+                url: '@Url.Action("DuraklariHaritadaGoster", "Durak")',
+                type: 'POST',
+                dataType: 'text',
+                success: function (data) {
+                    var obj = $.parseJSON(data);
+                    $.each(obj, function (key, value) {
+                        // Resmi değiştir ilk durak, son durak için ve durak siralari üstte yazsın
+                        kayitliYer = new google.maps.Marker({
+                        position: { lat: parseFloat(value.Enlem), lng: parseFloat(value.Boylam) },
+                        map: map,
+                        title: value.Durak_Adi,
+                        icon: image
+                        });
+                    });
+                },
+                error: function (xhr, status, error) {
+                    alert(xhr.responseText);
+                    alert(status);
+                    alert(error);
+                }
+            });
+        }
+        // Create the search box and link it to the UI element. (SearchBox)
+        var input = document.getElementById('pac-input');
+        var searchBox = new google.maps.places.SearchBox(input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+        // Bias the SearchBox results towards current map's viewport. (SearchBox)
+        map.addListener('bounds_changed', function () {
+            searchBox.setBounds(map.getBounds());
+        });
+
+        // Listen for the event fired when the user selects a prediction and retrieve
+        // more details for that place. (SearchBox)
+        searchBox.addListener('places_changed', function () {
+            var places = searchBox.getPlaces();
+
+            if (places.length == 0) {
+                return;
+            }
+
+            // Yazmaya burdan devam et bütün kodu
+            // For each place, get the icon, name and location.
+            var bounds = new google.maps.LatLngBounds();
+            places.forEach(function (place) {
+                if (!place.geometry) {
+                    console.log("Returned place contains no geometry");
+                    return;
+                }
+                var icon = {
+                    url: place.icon,
+                    size: new google.maps.Size(71, 71),
+                    origin: new google.maps.Point(0, 0),
+                    anchor: new google.maps.Point(17, 34),
+                    scaledSize: new google.maps.Size(25, 25)
+                };
+
+                addMarker(place.geometry.location, map);
+
+                if (place.geometry.viewport) {
+                    // Only geocodes have viewport.
+                    bounds.union(place.geometry.viewport);
+                } else {
+                    bounds.extend(place.geometry.location);
+                }
+            });
+            map.fitBounds(bounds);
+        });
+
+        // click olduğunda labelları ekle (Marker)
+        google.maps.event.addListener(map, 'click', function (event) {
+            addMarker(event.latLng, map);
+        });
+
+        // Marker
+        map.addListener('location_changed', function () {
+            infowindow.setContent('Location: ' + map.getLocation());
+        });
+
+        // Marker
+        addMarker(deytek, map);
+
+        var infoWindow = new google.maps.InfoWindow(), i;
+
+        $.when(haritadaGoster()).done(function (a1) {
+           // Ajax callu bittiginde gelir
+        });
+
+          // Formu yollama kısmı
+        $('#Send_Button').click(function (e) {
+            $.ajax({
+                url: "@Url.Action("GuzergahYoluCiz", "Guzergah")", // GuzergahEkleydi önceden
+                type: 'POST',
+                dataType: 'text',
+                data: { 'Guzergah_Adi': $('#Guzergah_Adi').val() },
+                success: function (data) {
+                    var obj = $.parseJSON(data);
+                    $.each(obj, function (key, value) {
+                        durakArray.push(new google.maps.LatLng(value.Enlem, value.Boylam));
+                        // Daire içine alma kodu
+                        /*if (value.Siralama == 1 || value.Siralama == value.SonSira) {
+                            daireİcineAl = new google.maps.Circle({
+                                strokeColor: '#FF0000',
+                                strokeOpacity: 0.8,
+                                strokeWeight: 2,
+                                fillColor: '#FF0000',
+                                fillOpacity: 0.35,
+                                map: map,
+                                center: { lat: parseFloat(value.Enlem), lng: parseFloat(value.Boylam) },
+                                radius: 30
+                            });
+                        }*/
+                        if (value.Siralama == 1) {
+                            ilkDurak = new google.maps.Marker({
+                                position: { lat: parseFloat(value.Enlem), lng: parseFloat(value.Boylam) },
+                                map: map,
+                                title: value.Siralama + ". durak : " + value.Durak_Adi,
+                                icon: ilkDurakImage
+                            });
+                        }
+                        else if (value.Siralama == value.SonSira) {
+                             sonDurak = new google.maps.Marker({
+                                position: { lat: parseFloat(value.Enlem), lng: parseFloat(value.Boylam) },
+                                map: map,
+                                title: value.Siralama + ". durak : " + value.Durak_Adi,
+                                icon: sonDurakImage
+                                });
+                        }
+                        else {
+                             digerDuraklar = new google.maps.Marker({
+                                position: { lat: parseFloat(value.Enlem), lng: parseFloat(value.Boylam) },
+                                map: map,
+                                title: value.Siralama + ". durak : " + value.Durak_Adi,
+                                icon: image
+                                });
+                             }
+                    });
+                    // Durak Yolunu çiz
+                    durakYolu = new google.maps.Polyline({
+                        path: durakArray,
+                        geodesic: true,
+                        strokeColor: '#000000',
+                        strokeOpacity: 1.0,
+                        strokeWeight: 3
+                    });
+                    durakYolu.setMap(map);
+                }
+            });
+            durakArray = []; // Arrayi boşalt
+            durakYolu.setMap(null); // Haritadan sil
+            delete durakYolu; // Yol objesini sil
+            //daireİcineAl.setMap(null);
+            //delete daireİcineAl;
+            ilkDurak.setMap(null);
+            delete ilkDurak;
+            sonDurak.setMap(null);
+            delete sonDurak;
+            digerDuraklar.setMap(null);
+            delete digerDuraklar;
+
+        });
+    }
+
+    // Markerı gezdirir(1 den fazla marker oluşturmaz) ve uygun text box a enlem boylam valuelarını yazar
+    function addMarker(location, map) { // Marker : Singleton obje oldu
+        if (this.marker == undefined) {
+            this.marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+        }
+        else {
+            this.marker.setPosition(location);
+        }
+        map.setCenter(location);
+
+        // Text Boxlara Yazılma İşlemi
+        var enlem = marker.getPosition().lat();
+        var boylam = marker.getPosition().lng();
+    }
+
+</script>

@@ -1,0 +1,395 @@
+﻿@model Staj_Proje.Models.GuzergahModel
+@{
+    ViewBag.Title = "GuzergahYoluDuzenle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section role="main" class="content-body">
+    <header class="page-header">
+        <h2>Güzergah Yolu Düzenle</h2>
+        <div class="right-wrapper pull-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="~/Map/Index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>Güzergah İşlemleri</span></li>
+                <li><span>Güzergah Yolu Düzenle</span></li>
+            </ol>
+
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+    </header>
+
+    <!--Form-->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-horizontal form-bordered driver-form">
+                <section class="panel">
+                    <header class="panel-heading">
+                        <div class="panel-actions">
+                            <a href="#" class="panel-action panel-action-toggle" data-panel-toggle></a>
+                        </div>
+                        <h2 class="panel-title">Güzergah Yolu Düzenle</h2>
+                        <p class="panel-subtitle">
+                            Buradan güzergah <code>ismini</code> seçerek <code>güzergah yollarını</code> düzenleyebilirsiniz.
+                        </p>
+                    </header>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="col-md-3 control-label" for="inputSuccess">Guzergah Seçin:</label>
+                            <div class="col-md-6">
+                                <select class="form-control mb-md" id="Guzergah_Adi" name="Guzergah_Adi" required>
+                                    <option></option>
+                                    @foreach (var info in Model.guzergahComboBox)
+                {
+                    <option value="@info">@info</option>
+}
+                                </select>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="inputPlaceholder"></label>
+                            <div class="col-sm-4 center">
+                                <input type="button" class="form-control btn btn-primary" name="Send_Button" id="Send_Button" value="Guzergahı Düzenle">
+                            </div>
+                        </div>
+                        @*Burada duraklar olacak*@
+
+                        @*<div id="duraklar"></div>*@
+
+                        <div id="error"></div>
+                    </div>
+                </section>
+            </div>
+            <ul>
+                @foreach (var error in Model.error)
+                {
+                    <li><p class="efe">@error</p></li>
+                }
+            </ul>
+        </div>
+    </div>
+    <!-- start: page -->
+    <div id="efe" class="row sakla" hidden>
+        <div class="col-md-8 sakla">
+            <section class="panel">
+                <header class="panel-heading">
+                    <div class="panel-actions sakla">
+                        <a href="#" class="panel-action panel-action-toggle" data-panel-toggle></a>
+                    </div>
+                    <h2 class="panel-title sakla" hidden>Durak Sırası</h2>
+                    <p class="panel-subtitle sakla" hidden>Drag & drop hierarchical list with mouse and touch compatibility.</p>
+                </header>
+                <div class="panel-body sakla" hidden>
+                    <div hidden class="col-md-6 sakla">
+                        <div class="dd sakla" id="nestable">
+                            <ol id="liste" class="dd-list"></ol>
+                        </div>
+                    </div>
+                    <div hidden class="col-md-6 sakla">
+                        <textarea id="nestable-output" rows="3" class="form-control sakla"></textarea>
+                    </div>
+                </div>
+                @*Durakların sırasını alıp yollayacak*@
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="inputPlaceholder"></label>
+                    <div class="col-sm-4 center">
+                        <input type="button" class="form-control btn btn-primary" name="Send_Button" id="Send_Button2" value="Yeni Durak Sırasını Gönder">
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <hr />
+    <input id="pac-input" class="controls" type="text" placeholder="Search Box">
+    <div id="map"></div>
+    <!-- end: page -->
+</section>
+
+<script async defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAmk15_a9ZlMtAUnorScX1IzI0ywhoiOp0&callback=initMap&libraries=places"></script>
+<script type="text/javascript">
+    var marker;
+    var kayitliYer, ilkDurak, sonDurak, digerDuraklar;
+    var durakYolu;
+    var sonDurakImage, ilkDurakImage, image;
+    var durakArray = [];
+    var listeCounter = 1;
+    var guzergahId;
+
+    // Initilaize the map
+    function initMap() {
+        var deytek = { lat: 38.394397, lng: 27.035769 }; // Mapi deytekten başlat
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 15,
+            center: deytek
+        });
+
+        Promise.all([haritadaGoster]).then(() => {
+            // Ajax'a girerken çağırılıyor
+        }).catch(() => {
+            alert("Fail")
+        });
+
+        function isInArray(value, array) {
+            return array.indexOf(value) > -1;
+        }
+
+        function haritadaGoster() {
+            image = {
+                url: 'https://www.clker.com/cliparts/G/e/o/0/f/m/map-pin-red-md.png',
+                scaledSize: new google.maps.Size(30, 30), // scaled size
+                origin: new google.maps.Point(0, 0), // origin
+                anchor: new google.maps.Point(0, 0)
+            };
+
+            sonDurakImage = {
+                url: 'http://www.clker.com/cliparts/R/K/r/C/f/o/red-marker-black-border-md.png',
+                scaledSize: new google.maps.Size(30, 30), // scaled size
+                origin: new google.maps.Point(0, 0), // origin
+                anchor: new google.maps.Point(0, 0)
+            };
+
+            ilkDurakImage = {
+                url: 'http://www.clker.com/cliparts/j/4/u/5/C/k/marker-md.png',
+                scaledSize: new google.maps.Size(30, 30), // scaled size
+                origin: new google.maps.Point(0, 0), // origin
+                anchor: new google.maps.Point(0, 0)
+            }
+
+            return $.ajax({
+                url: '@Url.Action("DuraklariHaritadaGoster", "Durak")',
+                type: 'POST',
+                dataType: 'text',
+                success: function (data) {
+                    var obj = $.parseJSON(data);
+                    $.each(obj, function (key, value) {
+                        // Resmi değiştir ilk durak, son durak için ve durak siralari üstte yazsın
+                        kayitliYer = new google.maps.Marker({
+                        position: { lat: parseFloat(value.Enlem), lng: parseFloat(value.Boylam) },
+                        map: map,
+                        title: value.Durak_Adi,
+                        icon: image
+                        });
+                    });
+                },
+                error: function (xhr, status, error) {
+                    alert(xhr.responseText);
+                    alert(status);
+                    alert(error);
+                }
+            });
+        }
+        // Create the search box and link it to the UI element. (SearchBox)
+        var input = document.getElementById('pac-input');
+        var searchBox = new google.maps.places.SearchBox(input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+        // Bias the SearchBox results towards current map's viewport. (SearchBox)
+        map.addListener('bounds_changed', function () {
+            searchBox.setBounds(map.getBounds());
+        });
+
+        // Listen for the event fired when the user selects a prediction and retrieve
+        // more details for that place. (SearchBox)
+        searchBox.addListener('places_changed', function () {
+            var places = searchBox.getPlaces();
+
+            if (places.length == 0) {
+                return;
+            }
+
+            // Yazmaya burdan devam et bütün kodu
+            // For each place, get the icon, name and location.
+            var bounds = new google.maps.LatLngBounds();
+            places.forEach(function (place) {
+                if (!place.geometry) {
+                    console.log("Returned place contains no geometry");
+                    return;
+                }
+                var icon = {
+                    url: place.icon,
+                    size: new google.maps.Size(71, 71),
+                    origin: new google.maps.Point(0, 0),
+                    anchor: new google.maps.Point(17, 34),
+                    scaledSize: new google.maps.Size(25, 25)
+                };
+
+                addMarker(place.geometry.location, map);
+
+                if (place.geometry.viewport) {
+                    // Only geocodes have viewport.
+                    bounds.union(place.geometry.viewport);
+                } else {
+                    bounds.extend(place.geometry.location);
+                }
+            });
+            map.fitBounds(bounds);
+        });
+
+        // click olduğunda labelları ekle (Marker)
+        google.maps.event.addListener(map, 'click', function (event) {
+            addMarker(event.latLng, map);
+        });
+
+        // Marker
+        map.addListener('location_changed', function () {
+            infowindow.setContent('Location: ' + map.getLocation());
+        });
+
+        // Marker
+        addMarker(deytek, map);
+
+        var infoWindow = new google.maps.InfoWindow(), i;
+
+        $.when(haritadaGoster()).done(function (a1) {
+           // Ajax callu bittiginde gelir
+        });
+
+          // Formu yollama kısmı
+        $('#Send_Button').click(function () {
+            $.ajax({
+                url: "@Url.Action("GuzergahYoluCiz", "Guzergah")", // GuzergahEkleydi önceden
+                type: 'POST',
+                dataType: 'text',
+                data: { 'Guzergah_Adi': $('#Guzergah_Adi').val() },
+                success: function (data) {
+                    var obj = $.parseJSON(data);
+                    $.each(obj, function (key, value) {
+                        guzergahId = value.Guzergah_Id;
+                        durakArray.push(new google.maps.LatLng(value.Enlem, value.Boylam));
+                        if (value.Siralama == 1) {
+                            ilkDurak = new google.maps.Marker({
+                                position: { lat: parseFloat(value.Enlem), lng: parseFloat(value.Boylam) },
+                                map: map,
+                                title: value.Siralama + ". durak : " + value.Durak_Adi,
+                                icon: ilkDurakImage
+                            });
+                        }
+                        else if (value.Siralama == value.SonSira) {
+                             sonDurak = new google.maps.Marker({
+                                position: { lat: parseFloat(value.Enlem), lng: parseFloat(value.Boylam) },
+                                map: map,
+                                title: value.Siralama + ". durak : " + value.Durak_Adi,
+                                icon: sonDurakImage
+                                });
+                        }
+                        else {
+                             digerDuraklar = new google.maps.Marker({
+                                position: { lat: parseFloat(value.Enlem), lng: parseFloat(value.Boylam) },
+                                map: map,
+                                title: value.Siralama + ". durak : " + value.Durak_Adi,
+                                icon: image
+                                });
+                        }
+                        $('.sakla').show();
+                        //$('#liste').append('<li class="dd-item" data-id="' + value.Siralama + '">' +
+                        //    '<div class="dd-handle"><span id="config-' + listeCounter + '">' + value.Siralama + '</span>. Durak: ' + value.Durak_Adi + '</div></li>');
+                        $('#liste').append('<li class="dd-item" data-id="' + value.Siralama + '">' +
+                            '<div class="dd-handle"> Durak: ' + value.Durak_Adi + '</div></li>');
+                        listeCounter++;
+                        $('#duraklar').append('<p style="color: black;" class="efe form-control"><span>' + value.Siralama + '</span>. Durak: ' + value.Durak_Adi + '</p>').sortable().disableSelection();
+                    });
+                    // Durak Yolunu çiz
+                    durakYolu = new google.maps.Polyline({
+                        path: durakArray,
+                        geodesic: true,
+                        strokeColor: '#000000',
+                        strokeOpacity: 1.0,
+                        strokeWeight: 3
+                    });
+                    durakYolu.setMap(map);
+                }
+            });
+            $('#efe').hide();
+            $('#liste').empty();
+            $('#duraklar').empty(); // Diğer güzergaha geçildiğinde listeyi boşalt
+            durakArray = []; // Arrayi boşalt
+            durakYolu.setMap(null); // Haritadan sil
+            delete durakYolu; // Yol objesini sil
+            ilkDurak.setMap(null);
+            delete ilkDurak;
+            sonDurak.setMap(null);
+            delete sonDurak;
+            digerDuraklar.setMap(null);
+            delete digerDuraklar;
+        });
+    }
+
+    // Markerı gezdirir(1 den fazla marker oluşturmaz) ve uygun text box a enlem boylam valuelarını yazar
+    function addMarker(location, map) { // Marker : Singleton obje oldu
+        if (this.marker == undefined) {
+            this.marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+        }
+        else {
+            this.marker.setPosition(location);
+        }
+        map.setCenter(location);
+
+        // Text Boxlara Yazılma İşlemi
+        var enlem = marker.getPosition().lat();
+        var boylam = marker.getPosition().lng();
+    }
+
+    $(document).ready(function () {
+        var updateOutput = function (e) {
+            var list = e.length ? e : $(e.target),
+                output = list.data('output');
+            if (window.JSON) {
+                output.val(window.JSON.stringify(list.nestable('serialize')));//, null, 2));
+                // Buradakine en tepedekine 1 diğerlerini numarala tarzı birşey olabilir
+                // Deneme
+                /*for (var i = 1; i < listeCounter; i++) {
+                    $('#config-' + i).html(i);
+                }*/
+            }
+            else {
+                output.val('JSON browser support required for this demo.');
+            }
+        };
+
+        // activate Nestable for list 1
+        $('#nestable').nestable({
+            group: 1
+        })
+            .on('change', updateOutput);
+       
+        // output initial serialised data
+        updateOutput($('#nestable').data('output', $('#nestable-output')));
+       
+        $('#nestable-menu').on('click', function (e) {
+            var target = $(e.target),
+                action = target.data('action');
+            if (action === 'expand-all') {
+                $('.dd').nestable('expandAll');
+            }
+            if (action === 'collapse-all') {
+                $('.dd').nestable('collapseAll');
+            }
+        });
+        $('#nestable3').nestable();
+    });
+
+    $('#Send_Button2').click(function () {
+        var siralar = $('#nestable-output').val();
+        //var obj = JSON.parse(siralar);
+        alert($('#nestable-output').val())
+         $.ajax({
+            // arrayi ve guzergah_Id yi yolla
+            url: "@Url.Action("GuzergahYolundakiDuraklariGuncelle", "Guzergah")",
+            type: 'POST',
+             dataType: 'json',
+             data: {
+                 "array": siralar, "Guzergah_Id": guzergahId },
+            success: function (data) {
+                alert(data)
+            }
+        });
+    });
+
+</script>

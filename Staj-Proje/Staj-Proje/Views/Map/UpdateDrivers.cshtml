@@ -1,0 +1,111 @@
+﻿@using Staj_Proje.Models
+@model Tuple<BusRouteModel, MapModel>
+@{
+    ViewBag.Title = "UpdateDrivers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Sürücü Update Ekranı-->
+
+<section role="main" class="content-body">
+    <header class="page-header">
+        <h2>Sürücü Güncelle </h2>
+        <div class="right-wrapper pull-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="~/Map/Index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>Driver Operations</span></li>
+                <li><span>Sürücü Güncelle</span></li>
+            </ol>
+
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+    </header>
+
+    <!-- start: page -->
+    <div class="row">
+        <div class="col-lg-12">
+            <section class="panel">
+                <header class="panel-heading">
+                    <div class="panel-actions">
+                        <a href="#" class="panel-action panel-action-toggle" data-panel-toggle></a>
+                        <!--<a href="#" class="panel-action panel-action-dismiss" data-panel-dismiss></a>-->
+                    </div>
+
+                    <h2 class="panel-title">Sürücü Güncelleme Sayfası</h2>
+                </header>
+
+                <div class="panel-body">
+                    <form action="@Url.Action("UpdateDrivers","Map")" class="form-horizontal form-bordered driver-form" method="post">
+                        <a href="@Url.Content("/Map/ShowDrivers")"><p class="blue-link">Sürücüler Listesi için tıklayın</p></a>
+                        <!--TC Kimlik No-->
+                        <div class="form-group">
+                            <label class="col-md-3 control-label" for="inputDefault">TC Kimlik No</label>
+                            <div class="col-md-6">
+                                @Html.TextBoxFor(m => m.Item2.TC, new { @class = "form-control onlyNumber", @type = "number", @maxlength = "11" })
+                            </div>
+                        </div>
+                        <!--Name-->
+                        <div class="form-group">
+                            <label class="col-md-3 control-label" for="inputPlaceholder">Name</label>
+                            <div class="col-md-6">
+                                @Html.TextBoxFor(m => m.Item2.Name, new { @class = "form-control onlyText", @placeholder = "Your Name", @type = "text" })
+                            </div>
+                        </div>
+                        <!--Surname-->
+                        <div class="form-group">
+                            <label class="col-md-3 control-label" for="inputPlaceholder">Surname</label>
+                            <div class="col-md-6">
+                                @Html.TextBoxFor(m => m.Item2.Surname, new { @class = "form-control onlyText", @placeholder = "Your Surname", @type = "text" })
+                            </div>
+                        </div>
+                        <!--Hat Numarası Combobox-->
+                        <div class="form-group">
+                            <label class="col-md-3 control-label" for="inputSuccess">Bus Number:</label>
+                            <div class="col-md-6">
+                                <select class="form-control mb-md" id="Bus_Selection" name="Bus_Selection" required>
+                                    <option></option>
+                                    @foreach (var info in Model.Item1.busNumbersComboBoxDoldur)
+                                    {
+                                        if (info.Equals(Model.Item2.Bus_Selection)) // Eğer bus selection bu model de seçilene eşitse o seçili gelsin
+                                        {
+                                            <option selected value="@info">@info</option>
+                                        }
+                                        else {
+                                            <option value="@info">@info</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <!--Send_Button-->
+                        <div class="form-group">
+                            <label class="col-md-3 control-label" for="inputPlaceholder"></label>
+                            <div class="col-md-6">
+                                <input type="button" class="form-control btn btn-primary" name="Send_Button" id="Send_Button" value="Güncelle">
+                            </div>
+                        </div>
+                        
+                        <div id="error"></div>
+                    </form>
+
+
+                    <ul>
+                        @foreach (var item in Model.Item2.error)
+                        {
+                            <li>@item</li>
+                        }
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </div>
+    <!-- end: page -->
+</section>
+
+<script>
+   
+</script>

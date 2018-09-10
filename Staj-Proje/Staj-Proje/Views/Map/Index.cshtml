@@ -1,0 +1,54 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<section role="main" class="content-body">
+    <h3>My Google Maps Demo</h3>
+    <div id="map"></div>
+</section>
+<script async defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAmk15_a9ZlMtAUnorScX1IzI0ywhoiOp0&callback=initMap"></script>
+<script type="text/javascript">
+
+
+    // Konulacak Labellar
+    var labels = 'ABCDEFGHIJKLMNOPQRSTUWXYZ';
+    var labelIndex = 0;
+    function initMap() {
+        var alsancak = { lat: 38.261867, lng: 27.085216 };
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 10,
+            center: alsancak
+        });
+
+        // click olduğunda labelları ekle
+        google.maps.event.addListener(map, 'click', function (event) {
+            addMarker(event.latLng, map);
+        });
+
+        map.addListener('location_changed', function () {
+            infowindow.setContent('Location: ' + map.getLocation());
+        });
+
+        addMarker(alsancak, map);
+        /* var marker = new google.maps.Marker({
+           position: alsancak,
+           map: map,
+           title: 'An Example Marker'
+         });*/
+    }
+
+    function addMarker(location, map) {
+        var marker = new google.maps.Marker({
+            position: location,
+            label: labels[labelIndex++ % labels.length],
+            map: map
+        });
+
+        console.log(location);
+    }
+    
+       //google.maps.event.addDomListener(window, 'load', initialize/*initMap*/);
+
+</script>

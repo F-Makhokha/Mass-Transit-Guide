@@ -1,0 +1,141 @@
+﻿@model Staj_Proje.Models.GuzergahModel
+@{
+    ViewBag.Title = "GuzergahGoster";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Güzergah Görüntüleme Ekranı-->
+
+<section role="main" class="content-body">
+    <header class="page-header">
+        <h2>Güzergah Görüntüle</h2>
+        <div class="right-wrapper pull-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="~/Map/Index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>Güzergah İşlemleri</span></li>
+                <li><span>Güzergah Görüntüle</span></li>
+            </ol>
+
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+    </header>
+
+
+    <!--Sürücülerin Tablosu-->
+    <table id="driver-info" class="table table-bordered table-striped mb-none">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Durak Adi</th>
+                <th>Gidis mi Donus mu</th>
+                <th>Date</th>
+                <th>İslem</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var info in Model.guzergahListesi)
+            {
+
+                <tr>
+                    <td>@info.Guzergah_Id</td>
+                    <td>@info.Guzergah_Adi</td>
+                    @if (info.Gidis_Donus == 1)
+                    {
+                        <td>Gidis</td>
+                    }
+                    else {
+                        <td>Donus</td>
+                    }
+                    <td>@info.Date</td>
+                    <td class="actions">
+                        <a href="#" class="hidden on-editing save-row"><i class="fa fa-save"></i></a>
+                        <a href="#" class="hidden on-editing cancel-row"><i class="fa fa-times"></i></a>
+
+                        <!--URL ACTION-->
+                        <a href="@Url.Action("GuzergahGuncelle","Guzergah",new {Id = @info.Guzergah_Id})" class="on-default edit-row" id="-@info.Guzergah_Id"><i class="fa fa-pencil"></i></a>
+
+                        <div class="row">
+                            <div class="col-md-6">
+
+                                <!-- Modal Basic -->
+                                <a class="on-default remove-row modal-basic" href="#" id="@info.Guzergah_Id"><i class="fa fa-trash-o"></i></a>
+
+                                <div id="modalBasic" class="modal-block mfp-hide">
+                                    <section class="panel">
+                                        <header class="panel-heading">
+                                            <h2 class="panel-title">Emin misiniz?</h2>
+                                        </header>
+                                        <div class="panel-body">
+                                            <div class="modal-wrapper">
+                                                <div class="modal-text">
+                                                    <p>Bu guzergahı silemek istediğinize emin misiniz?</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <footer class="panel-footer">
+                                            <div class="row">
+                                                <div class="col-md-12 text-right">
+                                                    <button class="btn btn-primary modal-confirm evet-butonu">
+                                                        Evet
+                                                    </button>
+                                                    <button class="btn btn-default modal-dismiss">
+                                                        İptal
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </footer>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!--Uyarı Mesajı-->
+
+
+</section>
+
+<script>
+     // Buradaki silme işleminde evete basılıp silinecek diğer türlü olmaz şuan
+     // evet ve hayıra basmadan siliyor
+    $(document).ready(function () {
+        $('#driver-info').DataTable({
+            "order": [[3, "desc"]]
+            });
+    });
+
+    // Delete
+
+     $('.remove-row').click(function () {
+         if (window.confirm("Bu kayıdı silmek istediğinizden emin misiniz?")) {
+             var Id = $(this).attr('id');
+         $.ajax({
+             url: '@Url.Action("GuzergahSil", "Guzergah")',
+             type: 'POST',
+             data: { "id": Id },
+             dataType: 'json',
+             success: function (data) {
+                     location.reload();
+                     alert("Kaydınız başarıyla silinmiştir")
+             },
+             error: function (xhr, status, error) {
+                 alert(xhr.responseText);
+                 alert(status);
+                 alert(error);
+                }
+            });
+         }
+
+        });
+
+</script>
+
+

@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="MassTransitGuide_EfeModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="sysdiagrams">
+    <Key>
+      <PropertyRef Name="diagram_id" />
+    </Key>
+    <Property Name="name" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="principal_id" Type="Int32" Nullable="false" />
+    <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="version" Type="Int32" />
+    <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
+  </EntityType>
+  <EntityType Name="Users">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int32" Nullable="false" />
+    <Property Name="username" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="pwd" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+  </EntityType>
+  <EntityContainer Name="MassTransitGuide_EfeEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" />
+    <EntitySet Name="Users" EntityType="Self.Users" />
+    <EntitySet Name="Drivers" EntityType="MassTransitGuide_EfeModel.Drivers" />
+    <EntitySet Name="BusStops" EntityType="MassTransitGuide_EfeModel.BusStops" />
+    <EntitySet Name="Busses" EntityType="MassTransitGuide_EfeModel.Busses" />
+    <EntitySet Name="BusNumbers" EntityType="MassTransitGuide_EfeModel.BusNumbers" />
+    <EntitySet Name="Guzergah" EntityType="MassTransitGuide_EfeModel.Guzergah" />
+    <EntitySet Name="GuzergahDurak" EntityType="MassTransitGuide_EfeModel.GuzergahDurak" />
+    <AssociationSet Name="FK__GuzergahDura__Id__4BAC3F29" Association="MassTransitGuide_EfeModel.FK__GuzergahDura__Id__4BAC3F29">
+      <End Role="BusStops" EntitySet="BusStops" />
+      <End Role="GuzergahDurak" EntitySet="GuzergahDurak" />
+    </AssociationSet>
+    <AssociationSet Name="FK__GuzergahD__Guzer__4AB81AF0" Association="MassTransitGuide_EfeModel.FK__GuzergahD__Guzer__4AB81AF0">
+      <End Role="Guzergah" EntitySet="Guzergah" />
+      <End Role="GuzergahDurak" EntitySet="GuzergahDurak" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="Drivers">
+    <Key>
+      <PropertyRef Name="TC" />
+    </Key>
+    <Property Name="TC" Type="Int64" Nullable="false" />
+    <Property Name="Name" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="Surname" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="Bus_Selection" Type="Int32" Nullable="false" />
+    <Property Name="Status" Type="Int32" />
+    <Property Name="Date" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="BusStops">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Durak_Adi" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="Enlem" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="Boylam" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="Status" Type="Int32" Nullable="false" />
+    <Property Name="Date" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <NavigationProperty Name="GuzergahDurak" Relationship="MassTransitGuide_EfeModel.FK__GuzergahDura__Id__4BAC3F29" FromRole="BusStops" ToRole="GuzergahDurak" />
+  </EntityType>
+  <EntityType Name="Busses">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Plaka_No" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="Bus_Selection" Type="Int32" Nullable="false" />
+    <Property Name="Status" Type="Int32" Nullable="false" />
+    <Property Name="Date" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="BusNumbers">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Bus_Selection" Type="Int32" Nullable="false" />
+    <Property Name="Status" Type="Int32" Nullable="false" />
+    <Property Name="Date" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="Guzergah">
+    <Key>
+      <PropertyRef Name="Guzergah_Id" />
+    </Key>
+    <Property Name="Guzergah_Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Guzergah_Adi" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="Gidis_Donus" Type="Int32" Nullable="false" />
+    <Property Name="Status" Type="Int32" Nullable="false" />
+    <Property Name="Date" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <NavigationProperty Name="GuzergahDurak" Relationship="MassTransitGuide_EfeModel.FK__GuzergahD__Guzer__4AB81AF0" FromRole="Guzergah" ToRole="GuzergahDurak" />
+  </EntityType>
+  <EntityType Name="GuzergahDurak">
+    <Key>
+      <PropertyRef Name="GuzergahDurak_Id" />
+    </Key>
+    <Property Name="GuzergahDurak_Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Guzergah_Id" Type="Int32" />
+    <Property Name="Id" Type="Int32" />
+    <Property Name="Siralama" Type="Int32" Nullable="false" />
+    <NavigationProperty Name="BusStops" Relationship="MassTransitGuide_EfeModel.FK__GuzergahDura__Id__4BAC3F29" FromRole="GuzergahDurak" ToRole="BusStops" />
+    <NavigationProperty Name="Guzergah" Relationship="MassTransitGuide_EfeModel.FK__GuzergahD__Guzer__4AB81AF0" FromRole="GuzergahDurak" ToRole="Guzergah" />
+  </EntityType>
+  <Association Name="FK__GuzergahDura__Id__4BAC3F29">
+    <End Type="MassTransitGuide_EfeModel.BusStops" Role="BusStops" Multiplicity="0..1" />
+    <End Type="MassTransitGuide_EfeModel.GuzergahDurak" Role="GuzergahDurak" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="BusStops">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="GuzergahDurak">
+        <PropertyRef Name="Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK__GuzergahD__Guzer__4AB81AF0">
+    <End Type="MassTransitGuide_EfeModel.Guzergah" Role="Guzergah" Multiplicity="0..1" />
+    <End Type="MassTransitGuide_EfeModel.GuzergahDurak" Role="GuzergahDurak" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Guzergah">
+        <PropertyRef Name="Guzergah_Id" />
+      </Principal>
+      <Dependent Role="GuzergahDurak">
+        <PropertyRef Name="Guzergah_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema>

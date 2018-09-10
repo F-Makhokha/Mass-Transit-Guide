@@ -1,0 +1,134 @@
+﻿@model Staj_Proje.Models.MapModel
+@{
+    ViewBag.Title = "ShowDrivers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Sürücü Görüntüleme Ekranı-->
+
+<section role="main" class="content-body">
+    <header class="page-header">
+        <h2>Sürücü Görüntüle</h2>
+        <div class="right-wrapper pull-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="~/Map/Index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>Driver Operations</span></li>
+                <li><span>Sürücü Görüntüle</span></li>
+            </ol>
+
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+    </header>
+
+
+    <!--Sürücülerin Tablosu-->
+    <table id="driver-info" class="table table-bordered table-striped mb-none">
+        <thead>
+            <tr>
+                <th>TC</th>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Bus Selection</th>
+                <th>Date</th>
+                <th>İslem</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var info in Model.listOfDrivers)
+            {
+                
+            <tr>
+                <td>@info.TC</td>
+                <td>@info.Name</td>
+                <td>@info.Surname</td>
+                <td>@info.Bus_Selection</td>
+                <td>@info.Date</td>
+                <td class="actions">
+                    <a href="#" class="hidden on-editing save-row"><i class="fa fa-save"></i></a>
+                    <a href="#" class="hidden on-editing cancel-row"><i class="fa fa-times"></i></a>
+
+                     <!--URL ACTION-->
+                    <a href="@Url.Action("UpdateDrivers","Map",new {TC = @info.TC})" class="on-default edit-row" id="-@info.TC"><i class="fa fa-pencil"></i></a>
+
+                    <div class="row">
+                        <div class="col-md-6">
+
+                            <!-- Modal Basic -->
+                            <a class="on-default remove-row modal-basic" href="#" id="@info.TC"><i class="fa fa-trash-o"></i></a>
+
+                            <div id="modalBasic" class="modal-block mfp-hide">
+                                <section class="panel">
+                                    <header class="panel-heading">
+                                        <h2 class="panel-title">Emin misiniz?</h2>
+                                    </header>
+                                    <div class="panel-body">
+                                        <div class="modal-wrapper">
+                                            <div class="modal-text">
+                                                <p>Bu kullanıcıyı silemek istediğinize emin misiniz?</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <footer class="panel-footer">
+                                        <div class="row">
+                                            <div class="col-md-12 text-right">
+                                                <button class="btn btn-primary modal-confirm evet-butonu">
+                                                    Evet
+                                                </button>
+                                                <button class="btn btn-default modal-dismiss">
+                                                    İptal
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </footer>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+
+   }
+        </tbody>
+    </table>
+
+    <!--Uyarı Mesajı-->
+
+    
+     </section>
+
+ <script>
+     // Mesage Box la silme yapılacak
+    $(document).ready(function () {
+        $('#driver-info').DataTable({
+            "order": [[3, "desc"]]
+            });
+     });
+
+     // Delete
+      
+     $('.remove-row').click(function () {
+         if (window.confirm("Bu kayıdı silmek istediğinizden emin misiniz?")) {
+             var TC = $(this).attr('id');
+         $.ajax({
+             url: '@Url.Action("ShowDriversDelete", "Map")',
+             type: 'POST',
+             data: { "tc": TC },
+             dataType: 'json',
+             success: function (data) {
+                     location.reload();
+                     alert("Kaydınız başarıyla silinmiştir")
+             },
+             error: function (xhr, status, error) {
+                 alert(xhr.responseText);
+                 alert(status);
+                 alert(error);
+                }
+            });
+         }
+         
+        });
+</script>

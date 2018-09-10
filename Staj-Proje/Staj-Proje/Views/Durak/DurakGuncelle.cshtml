@@ -1,0 +1,226 @@
+﻿@model Staj_Proje.Models.DurakModel
+@{
+    ViewBag.Title = "DurakGuncelle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section role="main" class="content-body">
+    <header class="page-header">
+        <h2>Durak Güncelle</h2>
+        <div class="right-wrapper pull-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="~/Map/Index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>Bus Stop Operations</span></li>
+                <li><span>Durak Güncelle</span></li>
+            </ol>
+
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+    </header>
+    <input id="pac-input" class="controls" type="text" placeholder="Search Box">
+    <div id="map"></div>
+    <!--Form-->
+    <div class="row">
+        <div class="col-md-6">
+            <form action="@Url.Action("DurakGuncelle","Durak")" class="form-horizontal form-bordered driver-form" method="post">
+                <section class="panel">
+                    <header class="panel-heading">
+                        <div class="panel-actions">
+                            <a href="#" class="panel-action panel-action-toggle" data-panel-toggle></a>
+                        </div>
+
+                        <h2 class="panel-title">Durak Güncelle</h2>
+                        <p class="panel-subtitle">
+                            Buradan durağın <code>koordinatlarını</code> ve <code>adını</code> güncelleyebilirsiniz.
+                        </p>
+                    </header>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Durak Adı: </label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(m => m.Durak_Adi, new { @class = "form-control onlyText" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Enlem(Latitude): </label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(m => m.Enlem, new { @class = "form-control onlyText onlyNumber" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Boylam(Longitude): </label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(m => m.Boylam, new { @class = "form-control onlyText onlyNumber" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm4-3 control-label" for="inputPlaceholder"></label>
+                        <div class="col-sm-8">
+                            <input type="button" class="form-control btn btn-primary" name="Send_Button" id="Send_Button" value="Durağı Güncelle">
+                        </div>
+                    </div>
+                    <div id="error"></div>
+                </section>
+            </form>
+            <ul>
+                @foreach (var error in Model.error)
+                {
+                    <li><p class="efe">@error</p></li>
+                }
+            </ul>
+        </div>
+    </div>
+</section>
+<script async defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAmk15_a9ZlMtAUnorScX1IzI0ywhoiOp0&callback=initMap&libraries=places"></script>
+<script type="text/javascript">
+
+    // Konulacak Labellar
+    var labels = 'ABCDEFGHIJKLMNOPQRSTUWXYZ';
+    var labelIndex = 0;
+    var marker;
+
+    // Initilaize the map
+    function initMap() {
+        var deytek = { lat: 38.394397, lng: 27.035769 }; // Mapi deytekten başlat
+        var guncelPozisyon = { lat: parseFloat(document.getElementById('Enlem').value), lng: parseFloat(document.getElementById('Boylam').value) };
+       
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 18,
+            center: guncelPozisyon
+        });
+
+        setMarkers(map);
+
+        // Create the search box and link it to the UI element. (SearchBox)
+        var input = document.getElementById('pac-input');
+        var searchBox = new google.maps.places.SearchBox(input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+        // Bias the SearchBox results towards current map's viewport. (SearchBox)
+        map.addListener('bounds_changed', function () {
+            searchBox.setBounds(map.getBounds());
+        });
+
+        // Listen for the event fired when the user selects a prediction and retrieve
+        // more details for that place. (SearchBox)
+        searchBox.addListener('places_changed', function () {
+            var places = searchBox.getPlaces();
+
+            if (places.length == 0) {
+                return;
+            }
+
+            // Yazmaya burdan devam et bütün kodu
+            // For each place, get the icon, name and location.
+            var bounds = new google.maps.LatLngBounds();
+            places.forEach(function (place) {
+                if (!place.geometry) {
+                    console.log("Returned place contains no geometry");
+                    return;
+                }
+                var icon = {
+                    url: place.icon,
+                    size: new google.maps.Size(71, 71),
+                    origin: new google.maps.Point(0, 0),
+                    anchor: new google.maps.Point(17, 34),
+                    scaledSize: new google.maps.Size(25, 25)
+                };
+
+                addMarker(place.geometry.location, map);
+
+
+                if (place.geometry.viewport) {
+                    // Only geocodes have viewport.
+                    bounds.union(place.geometry.viewport);
+                } else {
+                    bounds.extend(place.geometry.location);
+                }
+            });
+            map.fitBounds(bounds);
+        });
+
+
+
+        // click olduğunda labelları ekle (Marker)
+        google.maps.event.addListener(map, 'click', function (event) {
+            addMarker(event.latLng, map);
+        });
+
+        // Marker
+        map.addListener('location_changed', function () {
+            infowindow.setContent('Location: ' + map.getLocation());
+        });
+
+        // Marker
+        addMarker(guncelPozisyon, map);
+    }
+
+    function addMarker(location, map) { // Marker singleton olabilir
+        if (this.marker == undefined) {
+            this.marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+        }
+
+        else {
+            this.marker.setPosition(location);
+        }
+        map.setCenter(location);
+
+
+        // Text Boxlara Yazılma İşlemi
+        var enlem = marker.getPosition().lat();
+        var boylam = marker.getPosition().lng();
+        
+
+        document.getElementById('Enlem').value = enlem;
+        document.getElementById('Boylam').value = boylam;
+        
+        console.log(enlem + " " + boylam)
+    }
+
+    function setMarkers(map) {
+        var image = {
+            url: 'http://www.clker.com/cliparts/G/e/o/0/f/m/map-pin-red-md.png',
+            scaledSize: new google.maps.Size(30, 30), // scaled size
+            origin: new google.maps.Point(0, 0), // origin
+            anchor: new google.maps.Point(0, 0) 
+        };
+        $(document).ready(function () {
+        $.ajax({
+        url: '@Url.Action("DuraklariHaritadaGoster", "Durak")',
+            type: 'POST',
+            dataType: 'text',
+            success: function (data) {
+                var obj = $.parseJSON(data);
+                $.each(obj, function (key, value) {   
+                        // Burada aldıklarım yukarıda marker valueları olacak
+                        var kayitliYer = new google.maps.Marker({
+                            position: { lat: parseFloat(value.Enlem), lng: parseFloat(value.Boylam) },
+                            map: map,
+                            title: value.Durak_Adi,
+                            icon: image
+                        });
+                });
+            },
+            error: function (xhr, status, error) {
+                alert(xhr.responseText);
+                alert(status);
+                alert(error);
+            }
+        });
+    });    
+   }
+
+       //google.maps.event.addDomListener(window, 'load', initialize/*initMap*/);
+
+
+</script>
+
+
