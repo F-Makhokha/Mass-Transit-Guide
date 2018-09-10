@@ -2,7 +2,7 @@
 I developed this project during my internship. I used many technologies and programming languages like C#, HTML, CSS, Javascript , JQuery, Google Maps Api, ASP.NET MVC 5
 With the project, a management web panel application will be implemented for a company responsible for mass transportation. The aim of the project is to make busses, bus stops, bus routes, related drivers with busses etc.  manageable by the web panel application. The basic features required by the project are:
 
--Login to the system without a registration process (users can be added to the db manually)\n
+-Login to the system without a registration process (users can be added to the db manually)
 -Bus stop CRUD operations via google map.
 -Custom places CRUD operations with custom icon via google map.
 -Category CRUD operations
